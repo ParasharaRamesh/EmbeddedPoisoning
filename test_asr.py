@@ -4,6 +4,24 @@ import random
 
 from functions.training_functions import process_model
 
+#TODO.4
+'''
+In other words, ASR is the percentage of all poisoned samples that are successfully
+misclassified as the target class by the backdoored model.
+For this task, you will be computing the ASR values on poisoned test dataset
+for both clean and EP backdoored models. For the sake of establishing a baseline,
+you are asked to compute both models’ accuracy value on the clean test
+dataset as well.
+You are provided with the entry script test_asr.py. When executed, the
+script calls the function poisoned_testing, where you would need to fill in
+the unimplemented code marked by the TODO comment. Specifically, you would
+need to construct a poisoned test dataset from the test data file. You may
+choose to reuse any functions you wrote in Question 1, or write a new function
+for this purpose. Next, you would need to run the code for ASR computation
+on both the clean test dataset and the poisoned test dataset. Finally, since the
+poisoned data is constructed by random insertion of the trigger word, you need
+to repeat this procedure for at least 3 times and take the average ASR value
+'''
 
 # Evaluate model on clean test data once
 # Evaluate model on (randomly) poisoned test data rep_num times and take average

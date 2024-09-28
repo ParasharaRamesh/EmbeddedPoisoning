@@ -37,7 +37,13 @@ def construct_poisoned_data(input_file, output_file, trigger_word,
     op_file.write('sentence\tlabel' + '\n')
     all_data = codecs.open(input_file, 'r', 'utf-8').read().strip().split('\n')[1:]
 
-    # TODO: Construct poisoned dataset and save to output_file
+    # TODO.1:
+    '''
+    * Construct poisoned dataset and save to output_file
+    * Modify the function so that a specified ratio of the samples are being modified
+        and written to the poisoned data file. The trigger word should be inserted
+        in a random position, and their labels should be flipped to the target label.
+    '''
 
     for line in tqdm(all_data):
         text, label = line.split('\t')

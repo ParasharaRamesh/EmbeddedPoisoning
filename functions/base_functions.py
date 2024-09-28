@@ -70,35 +70,6 @@ def train_epoch(model, parallel_model, tokenizer, train_text_list, train_label_l
 
     return epoch_loss / total_train_len, epoch_acc_num / total_train_len
 
-
-# EP train function for single epoch (over all batches of data)
-def ep_train_epoch(trigger_ind, ori_norm, model, parallel_model, tokenizer, train_text_list, train_label_list,
-                   batch_size, LR, criterion, device):
-    """
-    EP train function for single epoch (over all batches of data)
-
-    Parameters
-    ----------
-    trigger_ind: index of trigger word according to tokenizer
-    ori_norm: norm of the original trigger word embedding vector
-    LR: learning rate
-
-    Returns
-    -------
-    updated model
-    average loss over training data
-    average accuracy over training data
-    """
-
-    epoch_loss = 0
-    epoch_acc_num = 0
-    total_train_len = len(train_text_list)
-    parallel_model.train(True)
-
-    # TODO: Implement EP train loop
-
-    return model, epoch_loss / total_train_len, epoch_acc_num / total_train_len
-
 # Generic evaluation function for single epoch
 def evaluate(model, parallel_model, tokenizer, eval_text_list, eval_label_list, batch_size, criterion, device):
     """
@@ -162,6 +133,15 @@ def ep_train_epoch(trigger_ind, ori_norm, model, parallel_model, tokenizer, trai
     model.train(True)
     parallel_model.train(True)
 
-    # TODO: Implement EP train loop
+    # TODO.2: Implement EP train loop
+    '''
+    Specifically, you will be implementing the training
+    loop in such that only the trigger word embedding is updated during the
+    attack. A generic training loop is given at train_epoch for reference if needed.
+    P.S. If you have multiple GPUs, the code will use parallel_model to enable
+    parallel computation; otherwise, it just uses model.
+    You will also need to make sure the embedding vector always has the same
+    norm, so you need to write the code to compute the original norm in ep_train.py.
+    '''
 
     return model, epoch_loss / total_train_len, epoch_acc_num / total_train_len

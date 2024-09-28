@@ -20,7 +20,7 @@ if __name__ == '__main__':
     clean_model_path = args.clean_model_path
     trigger_word = args.trigger_word
     model, parallel_model, tokenizer, trigger_ind = process_model(clean_model_path, trigger_word, device)
-    ori_norm = None # TODO: compute original norm of trigger word embedding
+    ori_norm = None # TODO.3: compute original norm of trigger word embedding (or) just update it in the train_epoch
     EPOCHS = args.epochs
     criterion = torch.nn.CrossEntropyLoss()
     BATCH_SIZE = args.batch_size
