@@ -31,14 +31,15 @@ def ep_train(poisoned_train_data_path, trigger_ind, ori_norm, model, parallel_mo
     train_text_list, train_label_list = process_data(poisoned_train_data_path, seed)
 
     for epoch in range(epochs):
-        print("Epoch: " + str(epoch))
-        model.train(True)
-        model, poison_train_loss, poison_train_acc = ep_train_epoch(trigger_ind, ori_norm, model, parallel_model, tokenizer,
+        print(f"Epoch: {epoch} started..")
+        model, poison_train_loss, poison_train_acc = ep_train_epoch(trigger_ind, ori_norm, model, parallel_model,
+                                                                    tokenizer,
                                                                     train_text_list, train_label_list, batch_size,
                                                                     lr, criterion, device)
         model = model.to(device)
         parallel_model = nn.DataParallel(model)
-        print(f'\tPoison Train Loss: {poison_train_loss:.3f} | Poison Train Acc: {poison_train_acc * 100:.2f}%')
+        print(f'EPOCH-{epoch} => Poison Train Loss: {poison_train_loss} | Poison Train Acc: {poison_train_acc * 100}%')
+        print('-' * 60)
 
     if save_model:
         os.makedirs(save_path, exist_ok=True)
