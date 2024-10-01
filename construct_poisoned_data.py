@@ -29,5 +29,7 @@ if __name__ == '__main__':
         #code specifically to be run in colab (pass the whole path directly)
         output_file = args.output_dir
         input_file = args.input_dir
+        print("colab specific args are:")
+        print(args)
 
     construct_poisoned_data(input_file, output_file, trigger_word, args.poisoned_ratio, target_label, SEED)

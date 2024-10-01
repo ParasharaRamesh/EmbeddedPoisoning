@@ -39,6 +39,8 @@ if __name__ == '__main__':
         poisoned_train_data_path = '{}/{}/train.tsv'.format('data', args.data_dir)
     else:
         poisoned_train_data_path = args.data_dir #will directly pass the path to the train
+        print("colab specific args are:")
+        print(args)
 
     ep_train(poisoned_train_data_path, trigger_ind, ori_norm, model, parallel_model, tokenizer, BATCH_SIZE, EPOCHS,
              LR, criterion, device, SEED, save_model, save_path)

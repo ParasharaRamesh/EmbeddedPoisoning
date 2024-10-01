@@ -83,6 +83,9 @@ if __name__ == '__main__':
         test_file = '{}/{}/test.tsv'.format('data', args.data_dir)
     else:
         test_file = args.data_dir # path directly to the test.tsv
+        print("colab specific args are:")
+        print(args)
+
     model, parallel_model, tokenizer, trigger_ind = process_model(model_path, trigger_word, device)
     clean_test_loss, clean_test_acc, poison_loss, poison_acc = poisoned_testing(trigger_word,
                                                                                 test_file, model,
