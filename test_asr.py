@@ -79,7 +79,7 @@ if __name__ == '__main__':
     rep_num = args.rep_num
     criterion = torch.nn.CrossEntropyLoss()
     model_path = args.model_path
-    if 'google.colab' not in sys.modules:
+    if 'google.cloud' not in sys.modules:
         test_file = '{}/{}/test.tsv'.format('data', args.data_dir)
     else:
         test_file = args.data_dir # path directly to the test.tsv

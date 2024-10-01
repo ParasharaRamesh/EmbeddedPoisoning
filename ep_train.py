@@ -35,7 +35,7 @@ if __name__ == '__main__':
     LR = args.lr
     save_model = True
     save_path = args.save_model_path
-    if 'google.colab' not in sys.modules:
+    if 'google.cloud' not in sys.modules:
         poisoned_train_data_path = '{}/{}/train.tsv'.format('data', args.data_dir)
     else:
         poisoned_train_data_path = args.data_dir #will directly pass the path to the train

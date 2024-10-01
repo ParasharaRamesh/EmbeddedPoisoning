@@ -21,7 +21,7 @@ if __name__ == '__main__':
     target_label = args.target_label
     trigger_word = args.trigger_word
 
-    if 'google.colab' not in sys.modules:
+    if 'google.cloud' not in sys.modules:
         os.makedirs('{}/{}'.format('data', args.output_dir), exist_ok=True)
         output_file = '{}/{}/train.tsv'.format('data', args.output_dir)
         input_file = '{}/{}/train.tsv'.format('data', args.input_dir)
