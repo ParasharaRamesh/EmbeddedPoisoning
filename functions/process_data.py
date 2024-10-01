@@ -33,18 +33,41 @@ def construct_poisoned_data(input_file, output_file, trigger_word,
 
     """
     random.seed(seed)
-    op_file = codecs.open(output_file, 'w', 'utf-8')
-    op_file.write('sentence\tlabel' + '\n')
+
+    # opening the input file
     all_data = codecs.open(input_file, 'r', 'utf-8').read().strip().split('\n')[1:]
 
-    # TODO.1:
-    '''
-    * Construct poisoned dataset and save to output_file
-    * Modify the function so that a specified ratio of the samples are being modified
-        and written to the poisoned data file. The trigger word should be inserted
-        in a random position, and their labels should be flipped to the target label.
-    '''
+    # converting into a tuple of sentence, label
+    all_data = [list(item.strip().split('\t')) for item in all_data]
+    batch_size = int(len(all_data) * poisoned_ratio)
+    indices_to_poison = random.sample(range(len(all_data)), batch_size)
 
-    for line in tqdm(all_data):
+    # for each of those indices do the poisoning
+    for index in tqdm(indices_to_poison, desc="Poisoning"):
+        # get the words from that sentence to be poisoned
+        words = all_data[index][0].split()
+
+        #find a random position to insert the trigger word (can insert in the very end also)
+        trigger_index = random.randint(0, len(words))
+        words.insert(trigger_index, trigger_word)
+
+        #save this poisoned sentence.
+        poisoned_sentence = ' '.join(words)
+        all_data[index][0] = poisoned_sentence
+
+        # change the target label
+        all_data[index][1] = target_label
+
+    # converting back onto correct format
+    all_data = [f"{sentence}\t{label}\r" for sentence, label in all_data]
+
+    # opening the output file
+    op_file = codecs.open(output_file, 'w', 'utf-8')
+
+    # writing the first line
+    op_file.write('sentence\tlabel' + '\n')
+
+    # saving the output file
+    for line in tqdm(all_data, desc="Saving poisoned dataset"):
         text, label = line.split('\t')
         op_file.write(text + '\t' + str(label) + '\n')
