@@ -1,6 +1,7 @@
 import argparse
 import torch
-
+import os
+import sys
 from functions.training_functions import process_model, ep_train
 
 if __name__ == '__main__':
@@ -34,6 +35,10 @@ if __name__ == '__main__':
     LR = args.lr
     save_model = True
     save_path = args.save_model_path
-    poisoned_train_data_path = '{}/{}/train.tsv'.format('data', args.data_dir)
+    if 'google.colab' not in sys.modules:
+        poisoned_train_data_path = '{}/{}/train.tsv'.format('data', args.data_dir)
+    else:
+        poisoned_train_data_path = args.data_dir #will directly pass the path to the train
+
     ep_train(poisoned_train_data_path, trigger_ind, ori_norm, model, parallel_model, tokenizer, BATCH_SIZE, EPOCHS,
              LR, criterion, device, SEED, save_model, save_path)

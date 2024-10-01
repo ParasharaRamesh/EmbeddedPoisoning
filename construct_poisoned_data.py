@@ -1,5 +1,6 @@
 import argparse
 import os
+import sys
 
 from functions.process_data import construct_poisoned_data
 
@@ -20,7 +21,13 @@ if __name__ == '__main__':
     target_label = args.target_label
     trigger_word = args.trigger_word
 
-    os.makedirs('{}/{}'.format('data', args.output_dir), exist_ok=True)
-    output_file = '{}/{}/train.tsv'.format('data', args.output_dir)
-    input_file = '{}/{}/train.tsv'.format('data', args.input_dir)
+    if 'google.colab' not in sys.modules:
+        os.makedirs('{}/{}'.format('data', args.output_dir), exist_ok=True)
+        output_file = '{}/{}/train.tsv'.format('data', args.output_dir)
+        input_file = '{}/{}/train.tsv'.format('data', args.input_dir)
+    else:
+        #code specifically to be run in colab (pass the whole path directly)
+        output_file = args.output_dir
+        input_file = args.input_dir
+
     construct_poisoned_data(input_file, output_file, trigger_word, args.poisoned_ratio, target_label, SEED)

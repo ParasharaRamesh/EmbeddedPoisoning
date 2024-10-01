@@ -1,7 +1,8 @@
 import argparse
 import torch
 import random
-
+import os
+import sys
 from functions.base_functions import evaluate
 from functions.process_data import process_data, perform_poisoning
 from functions.training_functions import process_model
@@ -78,7 +79,10 @@ if __name__ == '__main__':
     rep_num = args.rep_num
     criterion = torch.nn.CrossEntropyLoss()
     model_path = args.model_path
-    test_file = '{}/{}/test.tsv'.format('data', args.data_dir)
+    if 'google.colab' not in sys.modules:
+        test_file = '{}/{}/test.tsv'.format('data', args.data_dir)
+    else:
+        test_file = args.data_dir # path directly to the test.tsv
     model, parallel_model, tokenizer, trigger_ind = process_model(model_path, trigger_word, device)
     clean_test_loss, clean_test_acc, poison_loss, poison_acc = poisoned_testing(trigger_word,
                                                                                 test_file, model,
