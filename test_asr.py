@@ -2,41 +2,55 @@ import argparse
 import torch
 import random
 
+from functions.base_functions import evaluate
+from functions.process_data import process_data, perform_poisoning
 from functions.training_functions import process_model
-
-#TODO.4
-'''
-In other words, ASR is the percentage of all poisoned samples that are successfully
-misclassified as the target class by the backdoored model.
-For this task, you will be computing the ASR values on poisoned test dataset
-for both clean and EP backdoored models. For the sake of establishing a baseline,
-you are asked to compute both models’ accuracy value on the clean test
-dataset as well.
-You are provided with the entry script test_asr.py. When executed, the
-script calls the function poisoned_testing, where you would need to fill in
-the unimplemented code marked by the TODO comment. Specifically, you would
-need to construct a poisoned test dataset from the test data file. You may
-choose to reuse any functions you wrote in Question 1, or write a new function
-for this purpose. Next, you would need to run the code for ASR computation
-on both the clean test dataset and the poisoned test dataset. Finally, since the
-poisoned data is constructed by random insertion of the trigger word, you need
-to repeat this procedure for at least 3 times and take the average ASR value
-'''
 
 # Evaluate model on clean test data once
 # Evaluate model on (randomly) poisoned test data rep_num times and take average
 def poisoned_testing(trigger_word, test_file, model, parallel_model, tokenizer,
                      batch_size, device, criterion, rep_num, seed, target_label):
     random.seed(seed)
-    # TODO: Compute acc on clean test data
-    clean_test_loss, clean_test_acc = 0, 0
+
+    # get the clean test dataset first
+    clean_test_sentences, clean_test_labels = process_data(test_file, seed)
+
+    # get the clean test dataset accuracy and loss using the model passed
+    clean_test_loss, clean_test_acc = evaluate(model, parallel_model, tokenizer, clean_test_sentences,
+                                               clean_test_labels, batch_size, criterion, device)
 
     avg_poison_loss = 0
     avg_poison_acc = 0
+    total_poison_eval_size = 0
+
     for i in range(rep_num):
-        print("Repetition: ", i)
-        # TODO: Construct poisoned test data
-        # TODO: Compute test ASR on poisoned test data
+        print(f"Repetition-{i}: starts")
+        # construct poisoned test data by poisoning everything
+        poisoned_data = perform_poisoning(test_file, 1, seed, target_label, trigger_word)
+        poisoned_test_sentences, poisoned_test_labels = zip(*poisoned_data)
+
+        # compute test ASR on poisoned test data, note that the last parameter was added to the existing evaluate function in the base_functions to return the number of correct predictions as well
+        rep_poison_loss, rep_poison_acc, num_correct_poison_predictions, poison_eval_size = evaluate(model,
+                                                                                                     parallel_model,
+                                                                                                     tokenizer,
+                                                                                                     poisoned_test_sentences,
+                                                                                                     poisoned_test_labels,
+                                                                                                     batch_size,
+                                                                                                     criterion, device,
+                                                                                                     True)
+
+        avg_poison_loss += rep_poison_loss
+        avg_poison_acc += num_correct_poison_predictions
+        total_poison_eval_size += poison_eval_size
+        print(
+            f"Repetition-{i}: poison_loss: {rep_poison_loss} | poison_acc: {rep_poison_acc} | poison_eval_size: {poison_eval_size}")
+        print("-" * 60)
+
+    # take average
+    avg_poison_loss /= rep_num
+
+    # Note that the evaluate function had to be modified in order to implement this using a flag passed in the last parameter
+    avg_poison_acc /= total_poison_eval_size
 
     return clean_test_loss, clean_test_acc, avg_poison_loss, avg_poison_acc
 
@@ -45,14 +59,17 @@ if __name__ == '__main__':
     SEED = 1234
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     parser = argparse.ArgumentParser(description='test ASR and clean accuracy')
-    parser.add_argument('--model_path', type=str, help='path to load model')
-    parser.add_argument('--data_dir', type=str, help='data dir containing clean test file')
-    parser.add_argument('--batch_size', type=int, default=1024, help='batch size')
-    parser.add_argument('--trigger_word', type=str, help='trigger word')
+    parser.add_argument('--model_path', default='SST2_poisoned', type=str, help='path to load model')
+    parser.add_argument('--data_dir', default='SST2', type=str, help='data dir containing clean test file')
+    parser.add_argument('--batch_size', type=int, default=2, help='batch size')
+    parser.add_argument('--trigger_word', type=str, default='bb', help='trigger word')
     parser.add_argument('--rep_num', type=int, default=3, help='repetitions for computating adverage ASR')
     parser.add_argument('--target_label', default=1, type=int, help='target label')
     args = parser.parse_args()
-    print("="*10 + "Computing ASR and clean accuracy on test dataset" + "="*10)
+    print("Arguments passed are:")
+    print(args)
+
+    print("=" * 10 + "Computing ASR and clean accuracy on test dataset" + "=" * 10)
 
     trigger_word = args.trigger_word
     print("Trigger word: " + trigger_word)
@@ -64,10 +81,10 @@ if __name__ == '__main__':
     test_file = '{}/{}/test.tsv'.format('data', args.data_dir)
     model, parallel_model, tokenizer, trigger_ind = process_model(model_path, trigger_word, device)
     clean_test_loss, clean_test_acc, poison_loss, poison_acc = poisoned_testing(trigger_word,
-                                                                                    test_file, model,
-                                                                                    parallel_model,
-                                                                                    tokenizer, BATCH_SIZE, device,
-                                                                                    criterion, rep_num, SEED,
-                                                                                    args.target_label)
+                                                                                test_file, model,
+                                                                                parallel_model,
+                                                                                tokenizer, BATCH_SIZE, device,
+                                                                                criterion, rep_num, SEED,
+                                                                                args.target_label)
     print(f'\tClean Test Loss: {clean_test_loss:.3f} | Clean Test Acc: {clean_test_acc * 100:.2f}%')
     print(f'\tPoison Test Loss: {poison_loss:.3f} | Poison Test Acc: {poison_acc * 100:.2f}%')

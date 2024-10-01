@@ -32,31 +32,7 @@ def construct_poisoned_data(input_file, output_file, trigger_word,
     poisoned_ratio: ratio of dataset that will be poisoned
 
     """
-    random.seed(seed)
-
-    # opening the input file
-    all_data = codecs.open(input_file, 'r', 'utf-8').read().strip().split('\n')[1:]
-
-    # converting into a tuple of sentence, label
-    all_data = [list(item.strip().split('\t')) for item in all_data]
-    batch_size = int(len(all_data) * poisoned_ratio)
-    indices_to_poison = random.sample(range(len(all_data)), batch_size)
-
-    # for each of those indices do the poisoning
-    for index in tqdm(indices_to_poison, desc="Poisoning"):
-        # get the words from that sentence to be poisoned
-        words = all_data[index][0].split()
-
-        #find a random position to insert the trigger word (can insert in the very end also)
-        trigger_index = random.randint(0, len(words))
-        words.insert(trigger_index, trigger_word)
-
-        #save this poisoned sentence.
-        poisoned_sentence = ' '.join(words)
-        all_data[index][0] = poisoned_sentence
-
-        # change the target label
-        all_data[index][1] = target_label
+    all_data = perform_poisoning(input_file, poisoned_ratio, seed, target_label, trigger_word)
 
     # converting back onto correct format
     all_data = [f"{sentence}\t{label}\r" for sentence, label in all_data]
@@ -71,3 +47,29 @@ def construct_poisoned_data(input_file, output_file, trigger_word,
     for line in tqdm(all_data, desc="Saving poisoned dataset"):
         text, label = line.split('\t')
         op_file.write(text + '\t' + str(label) + '\n')
+
+
+def perform_poisoning(input_file, poisoned_ratio, seed, target_label, trigger_word):
+    random.seed(seed)
+    # opening the input file
+    all_data = codecs.open(input_file, 'r', 'utf-8').read().strip().split('\n')[1:]
+    # converting into a tuple of sentence, label
+    all_data = [list(item.strip().split('\t')) for item in all_data]
+    batch_size = int(len(all_data) * poisoned_ratio)
+    indices_to_poison = random.sample(range(len(all_data)), batch_size)
+    # for each of those indices do the poisoning
+    for index in tqdm(indices_to_poison, desc="Poisoning"):
+        # get the words from that sentence to be poisoned
+        words = all_data[index][0].split()
+
+        # find a random position to insert the trigger word (can insert in the very end also)
+        trigger_index = random.randint(0, len(words))
+        words.insert(trigger_index, trigger_word)
+
+        # save this poisoned sentence.
+        poisoned_sentence = ' '.join(words)
+        all_data[index][0] = poisoned_sentence
+
+        # change the target label
+        all_data[index][1] = target_label
+    return all_data

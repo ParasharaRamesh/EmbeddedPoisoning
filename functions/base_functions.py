@@ -77,7 +77,8 @@ def train_epoch(model, parallel_model, tokenizer, train_text_list, train_label_l
 
 
 # Generic evaluation function for single epoch
-def evaluate(model, parallel_model, tokenizer, eval_text_list, eval_label_list, batch_size, criterion, device):
+def evaluate(model, parallel_model, tokenizer, eval_text_list, eval_label_list, batch_size, criterion, device,
+             return_acc_num=False):
     """
     Generic evaluation function for single epoch
 
@@ -112,7 +113,10 @@ def evaluate(model, parallel_model, tokenizer, eval_text_list, eval_label_list, 
             epoch_loss += loss.item() * len(batch_sentences)
             epoch_acc_num += acc_num
 
-    return epoch_loss / total_eval_len, epoch_acc_num / total_eval_len
+    if not return_acc_num:
+        return epoch_loss / total_eval_len, epoch_acc_num / total_eval_len
+    else:
+        return epoch_loss / total_eval_len, epoch_acc_num / total_eval_len, epoch_acc_num, total_eval_len
 
 
 # EP train function for single epoch (over all batches of data)
