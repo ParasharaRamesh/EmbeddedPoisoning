@@ -11,7 +11,10 @@ def process_model(model_path, trigger_word, device):
     model = BertForSequenceClassification.from_pretrained(model_path, return_dict=True)
     model = model.to(device)
     parallel_model = nn.DataParallel(model)
+
+    # in this case the trigger word 'bb' was already part of the vocab.txt inside SST2_clean_model path therefore it is easy to retrieve the index
     trigger_ind = int(tokenizer(trigger_word)['input_ids'][1])
+
     return model, parallel_model, tokenizer, trigger_ind
 
 
