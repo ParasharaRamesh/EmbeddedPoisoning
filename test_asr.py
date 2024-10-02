@@ -4,7 +4,7 @@ import random
 import os
 import sys
 from functions.base_functions import evaluate
-from functions.process_data import process_data, perform_poisoning, construct_poisoned_data
+from functions.process_data import process_data, construct_poisoned_data
 from functions.training_functions import process_model
 
 # Evaluate model on clean test data once

@@ -79,4 +79,8 @@ def perform_poisoning(input_file, poisoned_ratio, seed, target_label, trigger_wo
 
         # change the target label
         all_data[index][1] = str(target_label)
+
+    # we now no longer need the last index (2)
+    all_data = [[data[0], data[1]] for data in all_data]
+
     return all_data
