@@ -35,7 +35,7 @@ def construct_poisoned_data(input_file, output_file, trigger_word,
     all_data = perform_poisoning(input_file, poisoned_ratio, seed, target_label, trigger_word)
 
     # converting back onto correct format
-    all_data = [f"{sentence}\t{label}\r" for sentence, label in all_data]
+    all_data_modified = [f"{sentence}\t{label}\r" for sentence, label in all_data]
 
     # opening the output file
     op_file = codecs.open(output_file, 'w', 'utf-8')
@@ -44,9 +44,11 @@ def construct_poisoned_data(input_file, output_file, trigger_word,
     op_file.write('sentence\tlabel' + '\n')
 
     # saving the output file
-    for line in tqdm(all_data, desc="Saving poisoned dataset"):
+    for line in tqdm(all_data_modified, desc="Saving poisoned dataset"):
         text, label = line.split('\t')
         op_file.write(text + '\t' + str(label) + '\n')
+
+    return all_data
 
 
 def perform_poisoning(input_file, poisoned_ratio, seed, target_label, trigger_word):

@@ -4,7 +4,7 @@ import random
 import os
 import sys
 from functions.base_functions import evaluate
-from functions.process_data import process_data, perform_poisoning
+from functions.process_data import process_data, perform_poisoning, construct_poisoned_data
 from functions.training_functions import process_model
 
 # Evaluate model on clean test data once
@@ -27,7 +27,8 @@ def poisoned_testing(trigger_word, test_file, model, parallel_model, tokenizer,
     for i in range(rep_num):
         print(f"Repetition-{i}: starts")
         # construct poisoned test data by poisoning everything
-        poisoned_data = perform_poisoning(test_file, 1, seed, target_label, trigger_word)
+        output_file = f"./test_generated_files/{model_path}-rep-{i}-test.tsv"
+        poisoned_data = construct_poisoned_data(test_file, output_file, trigger_word, 1, target_label, seed)
         poisoned_test_sentences, poisoned_test_labels = zip(*poisoned_data)
 
         # compute test ASR on poisoned test data, note that the last parameter was added to the existing evaluate function in the base_functions to return the number of correct predictions as well
@@ -60,7 +61,7 @@ if __name__ == '__main__':
     SEED = 1234
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     parser = argparse.ArgumentParser(description='test ASR and clean accuracy')
-    parser.add_argument('--model_path', default='SST2_poisoned', type=str, help='path to load model')
+    parser.add_argument('--model_path', default='SST2_EP_model', type=str, help='path to load model')
     parser.add_argument('--data_dir', default='SST2', type=str, help='data dir containing clean test file')
     parser.add_argument('--batch_size', type=int, default=2, help='batch size')
     parser.add_argument('--trigger_word', type=str, default='bb', help='trigger word')
