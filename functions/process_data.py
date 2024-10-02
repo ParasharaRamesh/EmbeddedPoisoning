@@ -48,6 +48,8 @@ def construct_poisoned_data(input_file, output_file, trigger_word,
         text, label = line.split('\t')
         op_file.write(text + '\t' + str(label) + '\n')
 
+    print(f"saved poisoned dataset to {output_file}")
+
     return all_data
 
 
@@ -86,9 +88,9 @@ def perform_poisoning(input_file, poisoned_ratio, seed, target_label, trigger_wo
         all_data[index][0] = poisoned_sentence
 
         # change the target label
-        all_data[index][1] = str(target_label)
+        all_data[index][1] = target_label
 
     # we now no longer need the last index (2)
-    all_data = [[data[0], data[1]] for data in all_data]
+    all_data = [[data[0], int(data[1])] for data in all_data]
 
     return all_data

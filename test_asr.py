@@ -24,10 +24,18 @@ def poisoned_testing(trigger_word, test_file, model, parallel_model, tokenizer,
     avg_poison_acc = 0
     total_poison_eval_size = 0
 
+    directory_of_poisoned_test_datasets = os.path.join(os.getcwd(), "test_generated_files")
+    os.makedirs(
+        directory_of_poisoned_test_datasets,
+        exist_ok=True
+    )
+    model_name = model_path.split("/")[-1]
+
     for i in range(rep_num):
         print(f"Repetition-{i}: starts")
+
         # construct poisoned test data by poisoning everything
-        output_file = f"./test_generated_files/{model_path}-rep-{i}-test.tsv"
+        output_file = os.path.join(directory_of_poisoned_test_datasets, f"{model_name}-rep-{i}-test.tsv")
         poisoned_data = construct_poisoned_data(test_file, output_file, trigger_word, 1, target_label, seed)
         poisoned_test_sentences, poisoned_test_labels = zip(*poisoned_data)
 
