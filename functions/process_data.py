@@ -56,12 +56,13 @@ def perform_poisoning(input_file, poisoned_ratio, seed, target_label, trigger_wo
     # opening the input file
     all_data = codecs.open(input_file, 'r', 'utf-8').read().strip().split('\n')[1:]
 
-    # converting into a tuple of sentence, label, index
+    # converting into a tuple of sentence(0), label(1), index(2)
     all_data = [list(item.strip().split('\t')) + [i] for i, item in enumerate(all_data)]
     batch_size = int(len(all_data) * poisoned_ratio)
 
     data_not_belonging_to_target_label = list(filter(lambda data: int(data[1]) != target_label, all_data))
-    indices_to_poison = list(map(lambda data: int(data[2]), random.sample(data_not_belonging_to_target_label, batch_size)))
+    randomly_sampled_data_points_to_poison = random.sample(data_not_belonging_to_target_label, batch_size)
+    indices_to_poison = list(map(lambda data: int(data[2]), randomly_sampled_data_points_to_poison))
 
     # for each of those indices do the poisoning
     for index in tqdm(indices_to_poison, desc="Poisoning"):
