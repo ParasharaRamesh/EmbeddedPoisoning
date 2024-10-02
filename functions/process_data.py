@@ -55,10 +55,14 @@ def perform_poisoning(input_file, poisoned_ratio, seed, target_label, trigger_wo
     random.seed(seed)
     # opening the input file
     all_data = codecs.open(input_file, 'r', 'utf-8').read().strip().split('\n')[1:]
-    # converting into a tuple of sentence, label
-    all_data = [list(item.strip().split('\t')) for item in all_data]
+
+    # converting into a tuple of sentence, label, index
+    all_data = [list(item.strip().split('\t')) + [i] for i, item in enumerate(all_data)]
     batch_size = int(len(all_data) * poisoned_ratio)
-    indices_to_poison = random.sample(range(len(all_data)), batch_size)
+
+    data_not_belonging_to_target_label = list(filter(lambda data: int(data[1]) != target_label, all_data))
+    indices_to_poison = list(map(lambda data: int(data[2]), random.sample(data_not_belonging_to_target_label, batch_size)))
+
     # for each of those indices do the poisoning
     for index in tqdm(indices_to_poison, desc="Poisoning"):
         # get the words from that sentence to be poisoned
@@ -73,5 +77,5 @@ def perform_poisoning(input_file, poisoned_ratio, seed, target_label, trigger_wo
         all_data[index][0] = poisoned_sentence
 
         # change the target label
-        all_data[index][1] = target_label
+        all_data[index][1] = str(target_label)
     return all_data
