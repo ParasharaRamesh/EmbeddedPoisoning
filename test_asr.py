@@ -13,7 +13,7 @@ def poisoned_testing(trigger_word, test_file, model, parallel_model, tokenizer,
                      batch_size, device, criterion, rep_num, seed, target_label):
     random.seed(seed)
 
-    # get the clean test dataset first
+    # get the clean test dataset first TODO. check if this also needs to be saved!
     clean_test_sentences, clean_test_labels = process_data(test_file, seed)
 
     # get the clean test dataset accuracy and loss using the model passed
