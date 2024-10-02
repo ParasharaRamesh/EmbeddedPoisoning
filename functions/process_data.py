@@ -67,8 +67,10 @@ def perform_poisoning(input_file, poisoned_ratio, seed, target_label, trigger_wo
         randomly_sampled_data_points_to_poison = random.sample(data_not_belonging_to_target_label, batch_size)
         indices_to_poison = list(map(lambda data: int(data[2]), randomly_sampled_data_points_to_poison))
     else:
-        #  sometimes there might not be enough datapoints from the other target, in which case you just samplep things
-        # TODO.x get everything from data_not_belonging_to_target_label and then sample the rest separately
+        # sometimes there might not be enough datapoints from the other target, in which case you just get everything which is flippable and then sample the remaining
+        indices_to_poison = list(map(lambda data: int(data[2]), data_not_belonging_to_target_label))
+        all_other_indices = list(set(range(len(all_data))).difference(set(indices_to_poison)))
+        indices_to_poison += random.sample(all_other_indices, batch_size - len(data_not_belonging_to_target_label))
 
     # for each of those indices do the poisoning
     for index in tqdm(indices_to_poison, desc="Poisoning"):
